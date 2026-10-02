@@ -1,3 +1,4 @@
+import OpenContext from './OpenContext.jsx'
 import { useEffect, useMemo, useState } from 'react'
 
 const STORAGE_KEY = 'email-campaign-studio-state'
@@ -6,21 +7,21 @@ const templates = [
   {
     id: 'promo',
     title: 'Промо-акция',
-    accent: '#ff6b35',
+    accent: '#8c6f48',
     headline: 'Осенние вещи для вашего дома',
     cta: 'Смотреть подборку',
   },
   {
     id: 'onboarding',
     title: 'Онбординг',
-    accent: '#4f46e5',
+    accent: '#536b7c',
     headline: 'Добро пожаловать в продукт',
     cta: 'Начать настройку',
   },
   {
     id: 'digest',
     title: 'Дайджест',
-    accent: '#059669',
+    accent: '#617b64',
     headline: 'Главное за неделю',
     cta: 'Читать выпуск',
   },
@@ -50,7 +51,7 @@ const defaultCampaign = {
   body: 'Собрали вещи для спокойных вечеров дома: настольные лампы, текстиль и небольшие предметы, которые приятно держать под рукой.',
   cta: 'Открыть подборку',
   previewMode: 'desktop',
-  url: 'https://example.com/collection',
+  url: 'https://cherreshenka1.github.io/optimized-ecommerce-store/',
 }
 
 export default function App() {
@@ -86,7 +87,7 @@ export default function App() {
     ['Корректная HTTPS-ссылка кнопки', validUrl],
     ['Прехедер заполнен', Boolean(campaign.preheader.trim())],
   ]
-  const getHtml = () => `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#f4f4f2;font-family:Arial,sans-serif"><table role="presentation" width="100%"><tr><td style="padding:32px"><table role="presentation" width="100%" style="max-width:600px;margin:auto;background:white"><tr><td style="padding:32px"><p>${escapeHtml(campaign.preheader)}</p><h1>${escapeHtml(template.headline)}</h1><p style="line-height:1.7">${escapeHtml(campaign.body)}</p><a href="${escapeHtml(campaign.url)}" style="display:inline-block;padding:14px 20px;background:${template.accent};color:white">${escapeHtml(campaign.cta)}</a></td></tr></table></td></tr></table></body></html>`
+  const getHtml = () => `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#f4f4f2;font-family:Arial,sans-serif"><table role="presentation" width="100%"><tr><td style="padding:32px"><table role="presentation" width="100%" style="max-width:600px;margin:auto;background:white"><tr><td style="padding:32px"><p>${escapeHtml(campaign.preheader)}</p><img src="https://cherreshenka1.github.io/email-campaign-studio/photos/lamp.jpg" alt="Настольная лампа в интерьере" width="536" style="display:block;width:100%;max-height:230px;object-fit:cover"><h1>${escapeHtml(template.headline)}</h1><p style="line-height:1.7">${escapeHtml(campaign.body)}</p><a href="${escapeHtml(campaign.url)}" style="display:inline-block;padding:14px 20px;background:${template.accent};color:white">${escapeHtml(campaign.cta)}</a></td></tr></table></td></tr></table></body></html>`
   const copyHtml = async () => {
     if (checks.some(([, ok]) => !ok)) {setStatus('Исправьте отмеченные пункты перед экспортом.'); return}
     try {await navigator.clipboard.writeText(getHtml()); setStatus('HTML скопирован. Можно вставить в сервис рассылок.')}
@@ -101,13 +102,14 @@ export default function App() {
 
   return (
     <div className="studio-shell">
+      <header className="product-topbar"><a href="#workspace">Письма / Редактор</a><nav><a href="#workspace">Рабочая область</a><a href="#open-data">Справочник</a><a href="https://cherreshenka1.github.io/portfolio/">Портфолио ↗</a></nav><span className="monogram">АБ</span></header>
       <header className="hero">
         <p className="eyebrow">Email Campaign Studio</p>
         <h1>Письмо перед отправкой</h1>
         <p className="hero-text">Соберите содержание, проверьте тему и посмотрите, как письмо выглядит на телефоне. Черновик сохраняется автоматически.</p>
       </header>
 
-      <main className="workspace">
+      <main id="workspace" className="workspace">
         <section className="builder-panel">
           <div className="section-head">
             <h2>Настройка кампании</h2>
@@ -216,7 +218,7 @@ export default function App() {
           <div className={campaign.previewMode === 'mobile' ? 'email-frame mobile' : 'email-frame'}>
             <div className="email-preheader">{campaign.preheader}</div>
             <div className="email-card" style={{ '--accent': template.accent }}>
-              <div className="email-badge">{template.title}</div>
+              <img className="email-photo" src="./photos/lamp.jpg" alt="Настольная лампа в интерьере"/><div className="email-badge">{template.title}</div>
               <h3>{template.headline}</h3>
               <p>{campaign.body}</p>
               <a href={validUrl ? campaign.url : undefined} target="_blank" rel="noreferrer">{campaign.cta}</a>
@@ -233,6 +235,7 @@ export default function App() {
 
         </aside>
       </main>
+      <OpenContext/>
     </div>
   )
 }

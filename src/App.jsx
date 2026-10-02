@@ -104,7 +104,7 @@ export default function App() {
     <div className="studio-shell">
       <header className="product-topbar"><a href="#workspace">Письма / Редактор</a><nav><a href="#workspace">Рабочая область</a><a href="#open-data">Справочник</a><a href="https://cherreshenka1.github.io/portfolio/">Портфолио ↗</a></nav><span className="monogram">АБ</span></header>
       <header className="hero">
-        <p className="eyebrow">Email Campaign Studio</p>
+        <p className="eyebrow">Кампания / черновик</p>
         <h1>Письмо перед отправкой</h1>
         <p className="hero-text">Соберите содержание, проверьте тему и посмотрите, как письмо выглядит на телефоне. Черновик сохраняется автоматически.</p>
       </header>

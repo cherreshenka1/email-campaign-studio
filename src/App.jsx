@@ -7,7 +7,7 @@ const templates = [
     id: 'promo',
     title: 'Промо-акция',
     accent: '#ff6b35',
-    headline: 'Большой весенний запуск',
+    headline: 'Осенние вещи для вашего дома',
     cta: 'Смотреть подборку',
   },
   {
@@ -46,18 +46,19 @@ const defaultCampaign = {
   segmentId: 'active',
   subjectA: 'Только сегодня: подборка товаров со скидкой',
   subjectB: 'Мы собрали для вас лучшие предложения недели',
-  preheader: 'Персональная подборка, адаптивное письмо и понятный CTA.',
-  body: 'Показываем новый оффер, объясняем ценность и ведём пользователя к целевому действию без лишнего шума.',
+  preheader: 'Тёплый свет, удобные детали и новая коллекция.',
+  body: 'Собрали вещи для спокойных вечеров дома: настольные лампы, текстиль и небольшие предметы, которые приятно держать под рукой.',
   cta: 'Открыть подборку',
   previewMode: 'desktop',
+  url: 'https://example.com/collection',
 }
 
 export default function App() {
-  const [campaign, setCampaign] = useState(readState() || defaultCampaign)
+  const [campaign, setCampaign] = useState({...defaultCampaign, ...(readState() || {})})
   const [status, setStatus] = useState('Черновик сохранён локально')
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(campaign))
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(campaign)) } catch { setStatus('Хранилище недоступно. Скачайте HTML, чтобы сохранить письмо.') }
   }, [campaign])
 
   const template = useMemo(
@@ -70,40 +71,40 @@ export default function App() {
     [campaign.segmentId],
   )
 
-  const metrics = useMemo(() => {
-    const subjectBonus = campaign.subjectB.length < campaign.subjectA.length ? 1.8 : 0.7
-    const expectedOpen = Math.min(58, segment.openRate + subjectBonus)
-    const expectedCtr = Math.min(14, segment.ctr + (campaign.cta.length < 24 ? 1.2 : 0.4))
-    const clicks = Math.round((segment.size * expectedCtr) / 100)
-
-    return {
-      expectedOpen: expectedOpen.toFixed(1),
-      expectedCtr: expectedCtr.toFixed(1),
-      clicks,
-      unsub: Math.max(4, Math.round(segment.size * 0.0016)),
-    }
-  }, [campaign.cta.length, campaign.subjectA.length, campaign.subjectB.length, segment])
 
   const saveCampaign = () => {
-    setStatus('Кампания сохранена. Данные лежат в localStorage.')
+    setStatus('Черновик сохранён в этом браузере.')
     window.setTimeout(() => setStatus('Черновик сохранён локально'), 1800)
   }
 
+  const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]))
+  const validUrl = (() => { try { const url = new URL(campaign.url); return url.protocol === 'https:' && Boolean(url.hostname) && !url.username && !url.password } catch { return false } })()
+  const checks = [
+    ['Тема A заполнена', Boolean(campaign.subjectA.trim())],
+    ['Текст письма заполнен', Boolean(campaign.body.trim())],
+    ['Текст кнопки: 1–30 символов', campaign.cta.trim().length > 0 && campaign.cta.length <= 30],
+    ['Корректная HTTPS-ссылка кнопки', validUrl],
+    ['Прехедер заполнен', Boolean(campaign.preheader.trim())],
+  ]
+  const getHtml = () => `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#f4f4f2;font-family:Arial,sans-serif"><table role="presentation" width="100%"><tr><td style="padding:32px"><table role="presentation" width="100%" style="max-width:600px;margin:auto;background:white"><tr><td style="padding:32px"><p>${escapeHtml(campaign.preheader)}</p><h1>${escapeHtml(template.headline)}</h1><p style="line-height:1.7">${escapeHtml(campaign.body)}</p><a href="${escapeHtml(campaign.url)}" style="display:inline-block;padding:14px 20px;background:${template.accent};color:white">${escapeHtml(campaign.cta)}</a></td></tr></table></td></tr></table></body></html>`
   const copyHtml = async () => {
-    const html = `<table role="presentation" width="100%"><tr><td><h1>${template.headline}</h1><p>${campaign.body}</p><a href="#">${campaign.cta}</a></td></tr></table>`
-    await navigator.clipboard.writeText(html)
-    setStatus('HTML email-шаблона скопирован в буфер обмена.')
+    if (checks.some(([, ok]) => !ok)) {setStatus('Исправьте отмеченные пункты перед экспортом.'); return}
+    try {await navigator.clipboard.writeText(getHtml()); setStatus('HTML скопирован. Можно вставить в сервис рассылок.')}
+    catch {setStatus('Не удалось скопировать. Используйте «Скачать HTML».')}
+  }
+  const downloadHtml = () => {
+    if (checks.some(([, ok]) => !ok)) {setStatus('Исправьте отмеченные пункты перед экспортом.'); return}
+    const url = URL.createObjectURL(new Blob([getHtml()], {type:'text/html;charset=utf-8'}))
+    const link = document.createElement('a'); link.href=url; link.download='campaign.html'; link.click()
+    setTimeout(() => URL.revokeObjectURL(url),1000); setStatus('HTML-файл подготовлен. Письма не отправлялись.')
   }
 
   return (
     <div className="studio-shell">
       <header className="hero">
         <p className="eyebrow">Email Campaign Studio</p>
-        <h1>Конструктор email-рассылок с preview, сегментами и аналитикой</h1>
-        <p className="hero-text">
-          Проект показывает навыки email-маркетинга на фронтенде: адаптивная структура,
-          редактируемый шаблон, preheader, CTA, A/B тема и прогноз метрик кампании.
-        </p>
+        <h1>Письмо перед отправкой</h1>
+        <p className="hero-text">Соберите содержание, проверьте тему и посмотрите, как письмо выглядит на телефоне. Черновик сохраняется автоматически.</p>
       </header>
 
       <main className="workspace">
@@ -177,7 +178,7 @@ export default function App() {
             </label>
 
             <label>
-              CTA
+              Текст кнопки
               <input
                 value={campaign.cta}
                 onChange={(event) => setCampaign((prev) => ({ ...prev, cta: event.target.value }))}
@@ -185,29 +186,29 @@ export default function App() {
             </label>
           </div>
 
-          <div className="actions-row">
+          <label>Ссылка кнопки<input type="url" value={campaign.url} onChange={event => setCampaign(prev => ({...prev,url:event.target.value}))}/></label><p className="demo-note">Демо-редактор. Аудитории условные; письма не отправляются.</p><div className="actions-row">
             <button type="button" onClick={saveCampaign}>Сохранить кампанию</button>
-            <button type="button" className="secondary" onClick={copyHtml}>Скопировать HTML</button>
+            <button type="button" className="secondary" onClick={copyHtml}>Скопировать HTML</button><button type="button" className="secondary" onClick={downloadHtml}>Скачать HTML</button>
           </div>
         </section>
 
         <aside className="preview-panel">
           <div className="section-head">
-            <h2>Preview</h2>
+            <h2>Предпросмотр</h2>
             <div className="mode-switch">
               <button
                 type="button"
                 className={campaign.previewMode === 'desktop' ? 'active' : ''}
                 onClick={() => setCampaign((prev) => ({ ...prev, previewMode: 'desktop' }))}
               >
-                Desktop
+                Компьютер
               </button>
               <button
                 type="button"
                 className={campaign.previewMode === 'mobile' ? 'active' : ''}
                 onClick={() => setCampaign((prev) => ({ ...prev, previewMode: 'mobile' }))}
               >
-                Mobile
+                Телефон
               </button>
             </div>
           </div>
@@ -218,24 +219,18 @@ export default function App() {
               <div className="email-badge">{template.title}</div>
               <h3>{template.headline}</h3>
               <p>{campaign.body}</p>
-              <a href="#preview">{campaign.cta}</a>
+              <a href={validUrl ? campaign.url : undefined} target="_blank" rel="noreferrer">{campaign.cta}</a>
             </div>
           </div>
 
           <div className="metrics-grid">
-            <div><span>Open rate</span><strong>{metrics.expectedOpen}%</strong></div>
-            <div><span>CTR</span><strong>{metrics.expectedCtr}%</strong></div>
-            <div><span>Клики</span><strong>{metrics.clicks.toLocaleString('ru-RU')}</strong></div>
-            <div><span>Отписки</span><strong>{metrics.unsub}</strong></div>
+            <div><span>Тема A</span><strong>{campaign.subjectA.length} знаков</strong></div>
+            <div><span>Тема B</span><strong>{campaign.subjectB.length} знаков</strong></div>
+            <div><span>Текст письма</span><strong>{campaign.body.length}</strong></div>
+            <div><span>Проверки</span><strong>{checks.filter(([,ok])=>ok).length} / {checks.length}</strong></div>
           </div>
+          <div className="checklist"><h3>Перед экспортом</h3>{checks.map(([label, ok]) => <p key={label} className={ok ? '' : 'check-fail'}>{ok ? '✓' : '○'} {label}</p>)}</div>
 
-          <div className="checklist">
-            <h3>Checklist</h3>
-            <p>✓ Preheader заполнен</p>
-            <p>✓ CTA короче 30 символов</p>
-            <p>✓ Есть mobile preview</p>
-            <p>✓ Сегмент аудитории выбран</p>
-          </div>
         </aside>
       </main>
     </div>

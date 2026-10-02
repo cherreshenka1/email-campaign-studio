@@ -1,33 +1,36 @@
-# Email Campaign Studio
+# email-campaign-studio
 
-Портфолио-проект для демонстрации навыков создания email-рассылок:
-шаблоны писем, сегменты аудитории, A/B тема письма, предпросмотр,
-чеклист качества и имитация аналитики.
+Самостоятельный интерактивный проект: письмо перед отправкой.
 
-## Живая версия
+[Открыть сайт](https://cherreshenka1.github.io/email-campaign-studio/) · [Кейс](https://cherreshenka1.github.io/portfolio/projects/email-campaign-studio/) · [Промпт и критерии доработки](https://github.com/cherreshenka1/portfolio/blob/main/prompts/email-campaign-studio.md)
 
-[https://cherreshenka1.github.io/email-campaign-studio/](https://cherreshenka1.github.io/email-campaign-studio/)
+## Сценарий
 
-## Возможности
+Редактировать тему и письмо, проверить ошибки, получить безопасный HTML-файл.
 
-- выбор шаблона email-кампании
-- live preview письма в desktop/mobile режиме
-- редактирование темы, preheader, CTA и промо-текста
-- выбор сегмента аудитории
-- A/B subject line
-- чеклист deliverability и адаптивности
-- имитация метрик open rate / CTR / unsubscribes
-- сохранение кампании в `localStorage`
+Проверки показывают заполненность полей и корректность ссылки. Предпросмотр переключается между ширинами; экспорт экранирует текст и создаёт HTML-файл.
 
-## Запуск
+## Границы
 
-```bash
-npm install
+Письма не отправляются. Аудитории условные; статистика открытий не собирается.
+
+## Проверить вручную
+
+1. Выбрать шаблон.
+2. Написать письмо.
+3. Проверить обязательные поля.
+4. Экспортировать HTML.
+
+Проверены основной сценарий и адаптивная вёрстка при ширине 390 и 1280 px. Это проверка прототипа, а не сертификация готовности к промышленной эксплуатации.
+
+## Разработка
+
+React 18, Vite 5. Node.js 20+.
+
+```sh
+npm ci
 npm run dev
+npm run build
 ```
 
-## Деплой
-
-```bash
-npm run deploy
-```
+`npm run deploy` собирает приложение и публикует `dist` в ветку `gh-pages` текущего репозитория.

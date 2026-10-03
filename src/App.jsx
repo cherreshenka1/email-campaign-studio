@@ -102,21 +102,9 @@ export default function App() {
 
   return (
     <div className="studio-shell">
-      <header className="product-topbar"><a href="#workspace">Письма / Редактор</a><nav><a href="#workspace">Рабочая область</a><a href="#open-data">Справочник</a><a href="https://cherreshenka1.github.io/portfolio/">Портфолио ↗</a></nav><span className="monogram">АБ</span></header>
-      <header className="hero">
-        <p className="eyebrow">Кампания / черновик</p>
-        <h1>Письмо перед отправкой</h1>
-        <p className="hero-text">Соберите содержание, проверьте тему и посмотрите, как письмо выглядит на телефоне. Черновик сохраняется автоматически.</p>
-      </header>
-
-      <main id="workspace" className="workspace">
-        <section className="builder-panel">
-          <div className="section-head">
-            <h2>Настройка кампании</h2>
-            <span>{status}</span>
-          </div>
-
-          <div className="template-grid">
+      <header className="product-topbar"><a href="#workspace">Письма / Редактор</a><nav><a href="#workspace">Редактор</a><a href="#sources" onClick={()=>{document.getElementById("sources").open=true}}>Источники</a><a href="https://cherreshenka1.github.io/portfolio/">Портфолио ↗</a></nav><span className="monogram">АБ</span></header>
+      <header className="campaign-heading"><div><p>Кампания / черновик</p><h1>Осенний выпуск</h1></div><span role="status">{status||'Изменения сохраняются автоматически'}</span></header>
+      <main id="workspace" className="workspace"><aside className="template-rail"><h2>Макеты</h2>          <div className="template-grid">
             {templates.map((item) => (
               <button
                 type="button"
@@ -129,6 +117,13 @@ export default function App() {
                 <strong>{item.headline}</strong>
               </button>
             ))}
+          </div>
+
+</aside>
+        <section className="builder-panel">
+          <div className="section-head">
+            <h2>Настройка кампании</h2>
+            <span>{status}</span>
           </div>
 
           <div className="form-grid">
@@ -235,7 +230,7 @@ export default function App() {
 
         </aside>
       </main>
-      <OpenContext/>
+      <details className="sources" id="sources"><summary>О данных и возможностях</summary><OpenContext/></details>
     </div>
   )
 }
